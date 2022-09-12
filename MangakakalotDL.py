@@ -54,12 +54,22 @@ def get_chapters(url):
     for link in links:
         if '/chapter/' in link:
             chapters.append(link)
+    if len(chapters) != 0:
+        return chapters
 
+    spans = document.find_all('li')
+    links = []
+    for span in spans:
+        for link in span.find_all('a'):
+            links.append(link.get('href'))
+    chapters = []
+    for link in links:
+        if 'chapter' in link:
+            chapters.append(link)
     return chapters
 
-
 def get_pages(url):
-    # get webpage HTML
+    # get webpage HTML      
     html = requests.get(url).text
     document = BeautifulSoup(html, 'html.parser')
     images = []
@@ -90,9 +100,6 @@ def download_chapter(url):
 
 
 if args.book is not None:
-    if 'mangakakalot' not in args.book:
-        print('Bad URL!')
-        exit(1)
     if '/chapter/' in args.book:
         print('You have entered a chapter URL! Run again with -c instead of -b')
         exit(1)
@@ -125,9 +132,6 @@ if args.book is not None:
 
 
 else:
-    if 'mangakakalot' not in args.chapter or 'chapter' not in args.chapter:
-        print('Bad URL!')
-        exit(1)
     try:
         Path("tmp").mkdir(exist_ok=True)
         for file in os.listdir('tmp'):
